@@ -24,6 +24,8 @@
 
 
 # Ignored files:
+# MiguelBridge Bot
+files/
 
 # NetBeans
 nbproject/private/
