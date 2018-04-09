@@ -3,12 +3,15 @@ package com.em.miguelbridge.telegrambot;
 import com.em.miguelbridge.Launcher;
 import com.em.miguelbridge.matrixbot.MatrixBot;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import org.telegram.telegrambots.api.methods.send.*;
 import org.telegram.telegrambots.api.objects.Update;
@@ -33,19 +36,30 @@ public class TGBot extends TelegramLongPollingBot {
         */        
         
         //Controllo per vedere se l'update è un messaggio testuale e che esso non sia vuoto
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            //Testo e mittente
-            String testoMessaggio = update.getMessage().getText();
-            String chat_id = "" + update.getMessage().getChatId();
-            String sender = update.getMessage().getFrom().getFirstName() + " "
-                    + update.getMessage().getFrom().getLastName();
-            
-            //Per capire qual'è l'id della chat di telegram
-            //System.out.println(chat_id);
-            
-            echoToMatrix(testoMessaggio, sender);
+        if (update.hasMessage()) {
+            if (update.getMessage().getText().equalsIgnoreCase("/chatid") ||
+                    update.getMessage().getText().equalsIgnoreCase("/chatid@" + getBotUsername())) {
+                String chat_id = "" + update.getMessage().getChatId();
+                cEcho(chat_id, chat_id);
+            }
+            else {
+                //Testo e mittente
+                String testoMessaggio = update.getMessage().getText();
+                String chat_id = "" + update.getMessage().getChatId();
+                String sender = update.getMessage().getFrom().getFirstName() + " "
+                        + update.getMessage().getFrom().getLastName();
+                String destination;
+                try {
+                    destination = getDestinationRoom(chat_id);
+                    if (destination == null)
+                        throw new Exception();
+                    echoToMatrix(testoMessaggio, sender, destination);
+                } catch (Exception ex) {
+                    cEcho(chat_id, "Errore: questa chat non è collegata a matrix.");
+                }
             }
         }
+    }
 
     @Override
     public String getBotUsername() {
@@ -71,6 +85,17 @@ public class TGBot extends TelegramLongPollingBot {
         return "";
     }
     
+    private String getDestinationRoom(String sender_id) throws IOException, FileNotFoundException, ParseException {
+        //Dalla chat mittente in telegram ritorna l'id della chat di matrix relativa
+        JSONArray rooms = Launcher.getRooms();
+        for (int k=0; k<rooms.size(); k++) {
+            JSONObject room = (JSONObject) rooms.get(k);
+            String roomTgId = (String) room.get("tgid");
+            if (roomTgId.equals(sender_id))
+                return (String) room.get("matrixid");
+        }
+        return null;
+    }
     
     //----------COMANDI----------
     public void cEcho(String chat_id, String testoMessaggio){
@@ -88,10 +113,9 @@ public class TGBot extends TelegramLongPollingBot {
         }
     }
 
-    private void echoToMatrix(String testoMessaggio, String sender) {
+    private void echoToMatrix(String testoMessaggio, String sender, String destination) {
         try {
-            String roomAddress = "!mPkXwqjuGdhEVSopiG:maxwell.ydns.eu";
-            matrixBot.sendMessage(sender + " da Telegram dice: " + testoMessaggio, roomAddress);
+            matrixBot.sendMessage(sender + ":\n" + testoMessaggio, destination);
         } catch (Exception ex) {
             Logger.getLogger(TGBot.class.getName()).log(Level.SEVERE, null, ex);
         }

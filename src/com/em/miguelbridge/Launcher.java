@@ -2,6 +2,10 @@ package com.em.miguelbridge;
 
 import com.em.miguelbridge.matrixbot.MatrixBot;
 import com.em.miguelbridge.telegrambot.TGBot;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -45,7 +49,14 @@ public class Launcher {
             matrixBot.setAccessToken(matrixBot.login());
             System.out.println("Bot Matrix avviato! " + matrixBot.readBotUserName());
             
-            String roomAddress = "!mPkXwqjuGdhEVSopiG:maxwell.ydns.eu";
+            //Joina tutte le room presenti nel json del collegamento
+            JSONArray rooms = getRooms();
+            String roomid = "";
+            for (int k=0; k<rooms.size(); k++) {
+                JSONObject room = (JSONObject) rooms.get(k);
+                roomid = (String) room.get("matrixid");
+                matrixBot.joinRoom(roomid);
+            }
             
             
             String[] newMessaggio;
@@ -53,38 +64,54 @@ public class Launcher {
             
             while (true) {
                 //Main loop del bot di matrix
-                Thread.sleep(3 * 1000);
-                lastMessageId = getLastMessageId();
-                newMessaggio = (String[]) matrixBot.getLastMessage(roomAddress);
+                Thread.sleep(500);
+                rooms = getRooms();
+                for (int roomNumber=0; roomNumber<rooms.size(); roomNumber++) {
+                    JSONObject room = (JSONObject) rooms.get(roomNumber);
+                    String matrixRoomId = (String) room.get("matrixid");
+                    
+                    lastMessageId = getLastMessageId(matrixRoomId);
+                    newMessaggio = (String[]) matrixBot.getLastMessage(matrixRoomId);
 
-                if (!newMessaggio[0].equals(matrixBot.readBotUserName()) && !newMessaggio[2].equals(lastMessageId)) {
-                    tgBot.cEcho("18200812", newMessaggio[0] + " da matrix dice: " + newMessaggio[1]);
+                    if (!newMessaggio[0].equals(matrixBot.readBotUserName()) && !newMessaggio[2].equals(lastMessageId)) {
+                        String tgroomid = (String) room.get("tgid");
+                        tgBot.cEcho(tgroomid, newMessaggio[0] + ":\n" + newMessaggio[1]);
+                    }
+
+                    saveLastMessageId(newMessaggio[2], matrixRoomId);
                 }
-
-                saveLastMessageId(newMessaggio[2]);
             }
             
         } catch (Exception ex) {
-            System.err.println("Avvio caricamento bot:");
             Logger.getLogger(Launcher.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         
     }
     
-    private static synchronized String getLastMessageId() throws FileNotFoundException, IOException, ParseException {
+    private static synchronized String getLastMessageId(String matrixRoomId) throws FileNotFoundException, IOException, ParseException {
         JSONParser jparser = new JSONParser();
         FileReader file;
         BufferedReader in;
         JSONObject obj;
         JSONArray rooms;
         JSONObject room;
+        int roomNumber = -1;
         
         file = new FileReader(Launcher.fileSettings);
         in = new BufferedReader(file);
         obj = (JSONObject) jparser.parse(in);
         rooms = (JSONArray) obj.get("rooms");
-        room = (JSONObject) rooms.get(0);
+        
+        for (int k=0; k<rooms.size(); k++) {
+            JSONObject thisRoom = (JSONObject) rooms.get(k);
+            String thisRoomId = (String) thisRoom.get("matrixid");
+            if (matrixRoomId.equals(thisRoomId)) {
+                roomNumber = k;
+                break;
+            }
+        }
+        room = (JSONObject) rooms.get(roomNumber);
         
         file.close();
         in.close();
@@ -92,7 +119,47 @@ public class Launcher {
         return (String) room.get("lastmessageid");
     }
     
-    private static synchronized void saveLastMessageId(String id) throws FileNotFoundException, IOException, ParseException {
+    private static synchronized void saveLastMessageId(String messageId, String matrixRoomId) throws FileNotFoundException, IOException, ParseException {
+        JSONParser jparser = new JSONParser();
+        FileReader file;
+        BufferedReader in;
+        JSONObject obj;
+        JSONArray rooms;
+        JSONObject room;
+        int roomNumber = -1;
+        
+        file = new FileReader(Launcher.fileSettings);
+        in = new BufferedReader(file);
+        obj = (JSONObject) jparser.parse(in);
+        rooms = (JSONArray) obj.get("rooms");
+        
+        for (int k=0; k<rooms.size(); k++) {
+            JSONObject thisRoom = (JSONObject) rooms.get(k);
+            String thisRoomId = (String) thisRoom.get("matrixid");
+            if (matrixRoomId.equals(thisRoomId)) {
+                roomNumber = k;
+                break;
+            }
+        }
+        
+        room = (JSONObject) rooms.get(roomNumber);
+        room.put("lastmessageid", messageId);
+        
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonParser jp = new JsonParser();
+        JsonElement je = jp.parse(obj.toJSONString());
+        String prettyJsonString = gson.toJson(je);
+        
+        new File(fileSettings).createNewFile();
+        PrintWriter writer = new PrintWriter(fileSettings);
+        writer.print(prettyJsonString);
+        writer.close();
+        
+        file.close();
+        in.close();
+    }
+    
+    public static synchronized JSONArray getRooms() throws FileNotFoundException, IOException, ParseException {
         JSONParser jparser = new JSONParser();
         FileReader file;
         BufferedReader in;
@@ -104,15 +171,10 @@ public class Launcher {
         in = new BufferedReader(file);
         obj = (JSONObject) jparser.parse(in);
         rooms = (JSONArray) obj.get("rooms");
-        room = (JSONObject) rooms.get(0);
-        room.put("lastmessageid", id);
-        
-        new File(fileSettings).createNewFile();
-        PrintWriter writer = new PrintWriter(fileSettings);
-        writer.print(obj.toJSONString());
-        writer.close();
         
         file.close();
         in.close();
+        
+        return rooms;
     }
 }

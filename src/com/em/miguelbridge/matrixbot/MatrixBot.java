@@ -5,8 +5,11 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.simple.*;
 import org.json.simple.parser.*;
 
@@ -97,10 +100,10 @@ public class MatrixBot {
         String[][] reqParams = null;        
         String[] risposta = RequestHandler.postRequestJSON(requestUrl, reqParams);
         
-        return risposta[0] + " - " + risposta[1];
+        return risposta[0];
     }
     
-    public String sendMessage(String message, String roomAddress) throws IOException, URISyntaxException {
+    public synchronized String sendMessage(String message, String roomAddress) throws IOException, URISyntaxException {
         String requestUrl = homeUrl + String.format("/rooms/%s/send/m.room.message?access_token=%s",
                 roomAddress, accessToken);
         
@@ -114,29 +117,33 @@ public class MatrixBot {
         return risposta[0] + " - " + risposta[1];
     }
     
-    public String[] getLastMessage(String roomAddress) throws IOException, ParseException {
-        String filtro = URLEncoder.encode("{\"room\":{\"timeline\":{\"limit\":1}}}", "UTF-8");
-        String requestUrl = homeUrl +
-                String.format("/sync?filter=%s&access_token=%s",
-                filtro, accessToken);
-        
-        String[] risposta = RequestHandler.getRequest(requestUrl);
-        
-        JSONParser jsonParser = new JSONParser();
-        JSONObject obj = (JSONObject) jsonParser.parse(risposta[1]);
-        JSONObject rooms = (JSONObject) obj.get("rooms");
-        JSONObject joined = (JSONObject) rooms.get("join");
-        JSONObject thisRoom = (JSONObject) joined.get(roomAddress);
-        JSONObject timeline = (JSONObject) thisRoom.get("timeline");
-        JSONArray events = (JSONArray) timeline.get("events");
-        JSONObject last = (JSONObject) events.get(0);
-        String eventid = (String) last.get("event_id");
-        String sender = (String) last.get("sender");
-        JSONObject content = (JSONObject) last.get("content");
-        String body = (String) content.get("body");
-        
-        //Come prima stringa c'è l'id del mittente, come seconda il body del messaggio
-        String[] lastMessage = new String[] {sender, body, eventid};
-        return lastMessage;
+    public String[] getLastMessage(String roomAddress) {
+        try {
+            String filtro = URLEncoder.encode("{\"room\":{\"timeline\":{\"limit\":1}}}", "UTF-8");
+            String requestUrl = homeUrl +
+                    String.format("/sync?filter=%s&access_token=%s",
+                            filtro, accessToken);
+            
+            String[] risposta = RequestHandler.getRequest(requestUrl);
+            
+            JSONParser jsonParser = new JSONParser();
+            JSONObject obj = (JSONObject) jsonParser.parse(risposta[1]);
+            JSONObject rooms = (JSONObject) obj.get("rooms");
+            JSONObject joined = (JSONObject) rooms.get("join");
+            JSONObject thisRoom = (JSONObject) joined.get(roomAddress);
+            JSONObject timeline = (JSONObject) thisRoom.get("timeline");
+            JSONArray events = (JSONArray) timeline.get("events");
+            JSONObject last = (JSONObject) events.get(0);
+            String eventid = (String) last.get("event_id");
+            String sender = (String) last.get("sender");
+            JSONObject content = (JSONObject) last.get("content");
+            String body = (String) content.get("body");
+            
+            //Come prima stringa c'è l'id del mittente, come seconda il body del messaggio e come terzo l'id del messaggio
+            String[] lastMessage = new String[] {sender, body, eventid};
+            return lastMessage;
+        } catch (Exception ex) {
+            return new String[] {"", "", ""};
+        }
     }
 }
