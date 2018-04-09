@@ -1,12 +1,14 @@
 package com.em.miguelbridge.telegrambot;
 
+import com.em.miguelbridge.Launcher;
 import com.em.miguelbridge.matrixbot.MatrixBot;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import org.telegram.telegrambots.api.methods.send.*;
 import org.telegram.telegrambots.api.objects.Update;
@@ -16,9 +18,6 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
  * @author Emanuele Magon
  */
 public class TGBot extends TelegramLongPollingBot {
-    //Costanti con il mio id e il nome del file delle richieste
-    private final String admin_id = "18200812";
-    private final String fileToken = "files/TGbot.token";
     private MatrixBot matrixBot;
     
     public void linkMatrixBot(MatrixBot matrixBot) {
@@ -38,8 +37,13 @@ public class TGBot extends TelegramLongPollingBot {
             //Testo e mittente
             String testoMessaggio = update.getMessage().getText();
             String chat_id = "" + update.getMessage().getChatId();
-            System.out.println(chat_id);
-            sendToMatrix(testoMessaggio);
+            String sender = update.getMessage().getFrom().getFirstName() + " "
+                    + update.getMessage().getFrom().getLastName();
+            
+            //Per capire qual'è l'id della chat di telegram
+            //System.out.println(chat_id);
+            
+            echoToMatrix(testoMessaggio, sender);
             }
         }
 
@@ -54,11 +58,14 @@ public class TGBot extends TelegramLongPollingBot {
     public String getBotToken() {
         try {
             //Return bot token from BotFather
-            //Legge il file di testo con il nome passato. Mantiene gli a capo e tabulazioni
-            BufferedReader reader;
-            reader = new BufferedReader(new FileReader (fileToken));
-            return reader.readLine();
-        } catch (IOException e) {
+            FileReader file = new FileReader(Launcher.fileSettings);
+            BufferedReader in = new BufferedReader(file);
+            JSONObject obj = (JSONObject) new JSONParser().parse(in);
+            in.close();
+            String token = (String) obj.get("tgtoken");
+            
+            return token;
+        } catch (Exception e) {
             System.out.println("Errore apertura file token: " + e);
         }
         return "";
@@ -81,10 +88,10 @@ public class TGBot extends TelegramLongPollingBot {
         }
     }
 
-    private void sendToMatrix(String testoMessaggio) {
+    private void echoToMatrix(String testoMessaggio, String sender) {
         try {
             String roomAddress = "!mPkXwqjuGdhEVSopiG:maxwell.ydns.eu";
-            matrixBot.sendMessage("Qualcuno da Telegram dice: " + testoMessaggio, roomAddress);
+            matrixBot.sendMessage(sender + " da Telegram dice: " + testoMessaggio, roomAddress);
         } catch (Exception ex) {
             Logger.getLogger(TGBot.class.getName()).log(Level.SEVERE, null, ex);
         }

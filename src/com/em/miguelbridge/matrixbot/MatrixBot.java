@@ -1,5 +1,6 @@
 package com.em.miguelbridge.matrixbot;
 
+import com.em.miguelbridge.Launcher;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -15,7 +16,7 @@ import org.json.simple.parser.*;
 public class MatrixBot {
     //https://matrix.org/docs/guides/client-server.html
     private final String homeUrl;
-    private final static String fileInfo = "files/MatrixBotInfo.txt";
+    
     private String accessToken;
 
     public String getAccessToken() {
@@ -30,23 +31,28 @@ public class MatrixBot {
         homeUrl = "https://maxwell.ydns.eu/_matrix/client/r0";
     }
     
-    public static String readUserName() throws FileNotFoundException, IOException {
-        FileReader file = new FileReader(fileInfo);
+    public static String readBotUserName() throws FileNotFoundException, IOException, ParseException {
+        FileReader file = new FileReader(Launcher.fileSettings);
         BufferedReader in = new BufferedReader(file);
-        String str = in.readLine();
+        
+        
+        JSONObject obj = (JSONObject) new JSONParser().parse(in);
         in.close();
         
-        return str;
+        String userName = (String) obj.get("matrixuser");
+        return userName;
     }
     
-    public String readPswd() throws FileNotFoundException, IOException {
-        FileReader file = new FileReader(fileInfo);
+    public String readPswd() throws FileNotFoundException, IOException, ParseException {
+        FileReader file = new FileReader(Launcher.fileSettings);
         BufferedReader in = new BufferedReader(file);
-        in.readLine(); //Usato per leggere la seconda riga
-        String str = in.readLine();
+        
+        JSONObject obj = (JSONObject) new JSONParser().parse(in);
         in.close();
         
-        return str;
+        String pswd = (String) obj.get("matrixpswd");
+        
+        return pswd;
     }
     
     /**
@@ -61,7 +67,7 @@ public class MatrixBot {
         
         String[][] reqParams = new String[][] {
             {"type", "m.login.password"},
-            {"user", readUserName()},
+            {"user", readBotUserName()},
             {"password", readPswd()}
         };
         
@@ -112,12 +118,13 @@ public class MatrixBot {
         JSONObject timeline = (JSONObject) thisRoom.get("timeline");
         JSONArray events = (JSONArray) timeline.get("events");
         JSONObject last = (JSONObject) events.get(0);
+        String eventid = (String) last.get("event_id");
         String sender = (String) last.get("sender");
         JSONObject content = (JSONObject) last.get("content");
         String body = (String) content.get("body");
         
         //Come prima stringa c'è l'id del mittente, come seconda il body del messaggio
-        String[] lastMessage = new String[] {sender, body};
+        String[] lastMessage = new String[] {sender, body, eventid};
         return lastMessage;
     }
 }

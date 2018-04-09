@@ -25,7 +25,7 @@ public class prova {
                 ultimoMess = bot.getLastMessage(roomAddress);
                 
 
-                if (!ultimoMess[0].equals(bot.readUserName())) {
+                if (!ultimoMess[0].equals(bot.readBotUserName())) {
                     System.out.println(ultimoMess[0] + " dice: " + ultimoMess[1]);
                     bot.sendMessage(ultimoMess[1], roomAddress);
                 }
