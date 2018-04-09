@@ -6,7 +6,14 @@
       "tgid": "123456",
       "matrixid": "id:homeserver.com",
 	  "lastmessageid": "event id of the last message sent in this room. DO NOT EDIT"
-    }
+    },
+	{
+	  "matrixname": "Name of another room in Matrix",
+	  "tgname": "Name of another room in Telegram",
+      "tgid": "654321",
+      "matrixid": "id2:homeserver.com",
+	  "lastmessageid": "event id of the last message sent in this room. DO NOT EDIT"
+	}
   ],
   "matrixhomeserver": "https://homeserver.com/_matrix/client/r0",
   "tgtoken": "Token key given from BotFather",
