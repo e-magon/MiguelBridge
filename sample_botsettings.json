@@ -1,0 +1,15 @@
+{
+	"tguser": "Telegram user name",
+	"matrixuser": "Matrix user name",
+	"tgtoken": "Token key given from BotFather",
+	"matrixpswd": "Matrix user password",
+	"matrixhomeserver": "Matrix home server url",
+	
+	"rooms": [{
+		"tgname": "Name of the room in Telegram",
+		"matrixname": "Name of the room in Matrix",
+		"tgid": "Chat id of the room in Telegram",
+		"matrixid": "Chat id of the room in Matrix",
+		"lastmessageid": "event id of the last message sent in this room. DO NOT EDIT"
+	]}
+}
