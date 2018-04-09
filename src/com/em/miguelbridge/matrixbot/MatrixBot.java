@@ -27,8 +27,8 @@ public class MatrixBot {
         this.accessToken = accessToken;
     }
     
-    public MatrixBot() {
-        homeUrl = "https://maxwell.ydns.eu/_matrix/client/r0";
+    public MatrixBot() throws IOException, FileNotFoundException, ParseException {
+        homeUrl = getHomeServer();
     }
     
     public static String readBotUserName() throws FileNotFoundException, IOException, ParseException {
@@ -53,6 +53,18 @@ public class MatrixBot {
         String pswd = (String) obj.get("matrixpswd");
         
         return pswd;
+    }
+    
+    public String getHomeServer() throws FileNotFoundException, IOException, ParseException {
+        FileReader file = new FileReader(Launcher.fileSettings);
+        BufferedReader in = new BufferedReader(file);
+        
+        JSONObject obj = (JSONObject) new JSONParser().parse(in);
+        in.close();
+        
+        String server = (String) obj.get("matrixhomeserver");
+        
+        return server;
     }
     
     /**

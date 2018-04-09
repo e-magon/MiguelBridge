@@ -1,9 +1,8 @@
 {
-	"tguser": "Telegram user name",
 	"matrixuser": "Matrix user name",
 	"tgtoken": "Token key given from BotFather",
 	"matrixpswd": "Matrix user password",
-	"matrixhomeserver": "Matrix home server url",
+	"matrixhomeserver": "https://homeserver.com/_matrix/client/r0",
 	
 	"rooms": [{
 		"tgname": "Name of the room in Telegram",
