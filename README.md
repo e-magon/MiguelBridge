@@ -16,7 +16,7 @@ Using https://github.com/rubenlagus/TelegramBots
     Then, for every pair of room you want to link togheter:
     1. `matrixname`: write the name of the matrix room
     2. `tgname`: write the name of the Telegram room
-    3. `tgid`: write the id of the telegram chat. You can get it sending the `/chatid` command to the Telegram Bot
+    3. `tgid`: write the id of the telegram chat. You can get it by sending the `/chatid` command to the Telegram Bot
     4. `matrixid` : write the id of the matrix room. You can get it from the room settings, under "internal id" (like `!something:server.com`)
     5. `lastmessageid`: this parameter is managed by the application, don't edit it
 4. Start the program
