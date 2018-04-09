@@ -2,14 +2,14 @@
   "rooms": [
     {
       "matrixname": "Name of the room in Matrix",
-      "tgid": "Chat id of the room in Telegram",
-      "lastmessageid": "event id of the last message sent in this room. DO NOT EDIT",
-      "matrixid": "Chat id of the room in Matrix",
-      "tgname": "Name of the room in Telegram"
+	  "tgname": "Name of the room in Telegram",
+      "tgid": "123456",
+      "matrixid": "id:homeserver.com",
+	  "lastmessageid": "event id of the last message sent in this room. DO NOT EDIT"
     }
   ],
   "matrixhomeserver": "https://homeserver.com/_matrix/client/r0",
   "tgtoken": "Token key given from BotFather",
-  "matrixuser": "Matrix user name",
+  "matrixuser": "@MatrixUser:homeserver.com",
   "matrixpswd": "Matrix user password"
 }
