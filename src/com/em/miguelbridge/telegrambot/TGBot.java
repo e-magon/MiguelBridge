@@ -1,8 +1,12 @@
 package com.em.miguelbridge.telegrambot;
 
+import com.em.miguelbridge.matrixbot.MatrixBot;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.telegram.telegrambots.api.methods.send.*;
 import org.telegram.telegrambots.api.objects.Update;
@@ -15,6 +19,11 @@ public class TGBot extends TelegramLongPollingBot {
     //Costanti con il mio id e il nome del file delle richieste
     private final String admin_id = "18200812";
     private final String fileToken = "files/TGbot.token";
+    private MatrixBot matrixBot;
+    
+    public void linkMatrixBot(MatrixBot matrixBot) {
+        this.matrixBot = matrixBot;
+    }
     
     @Override
     public void onUpdateReceived(Update update) {
@@ -29,8 +38,8 @@ public class TGBot extends TelegramLongPollingBot {
             //Testo e mittente
             String testoMessaggio = update.getMessage().getText();
             String chat_id = "" + update.getMessage().getChatId();
-            
-            cEcho(chat_id, testoMessaggio);
+            System.out.println(chat_id);
+            sendToMatrix(testoMessaggio);
             }
         }
 
@@ -69,6 +78,15 @@ public class TGBot extends TelegramLongPollingBot {
             sendMessage(messaggio);
         } catch (Exception e) {
             System.err.println("Errore: " + e);
+        }
+    }
+
+    private void sendToMatrix(String testoMessaggio) {
+        try {
+            String roomAddress = "!mPkXwqjuGdhEVSopiG:maxwell.ydns.eu";
+            matrixBot.sendMessage("Qualcuno da Telegram dice: " + testoMessaggio, roomAddress);
+        } catch (Exception ex) {
+            Logger.getLogger(TGBot.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
