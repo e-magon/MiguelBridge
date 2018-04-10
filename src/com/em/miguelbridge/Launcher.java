@@ -71,16 +71,19 @@ public class Launcher {
                     String matrixRoomId = (String) room.get("matrixid");
                     
                     lastMessageId = getLastMessageId(matrixRoomId);
-                    newMessaggio = (String[]) matrixBot.getLastMessage(matrixRoomId);
+                    
 
-                    if (!newMessaggio[0].equals(matrixBot.readBotUserName()) &&
-                            !newMessaggio[2].equals(lastMessageId) &&
-                            !newMessaggio[1].equals("") && newMessaggio[1] != null) {
-                        String tgroomid = (String) room.get("tgid");
-                        tgBot.cEcho(tgroomid, newMessaggio[0] + ":\n" + newMessaggio[1]);
-                    }
+                    try {
+                        newMessaggio = (String[]) matrixBot.getLastMessage(matrixRoomId);
+                        if (!newMessaggio[0].equals(matrixBot.readBotUserName()) &&
+                                !newMessaggio[2].equals(lastMessageId) &&
+                                !newMessaggio[1].equals("") && newMessaggio[1] != null) {
+                            String tgroomid = (String) room.get("tgid");
 
-                    saveLastMessageId(newMessaggio[2], matrixRoomId);
+                            tgBot.cEcho(tgroomid, newMessaggio[0] + ":\n" + newMessaggio[1]);
+                            saveLastMessageId(newMessaggio[2], matrixRoomId);
+                        }
+                    } catch (Exception e) {}
                 }
             }
             
