@@ -1,5 +1,6 @@
-package com.em.miguelbridge.matrixbot;
+package test;
 
+import com.em.miguelbridge.matrixbot.MatrixBot;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -7,7 +8,7 @@ import java.util.logging.Logger;
  *
  * @author Emanuele Magon
  */
-public class prova {
+public class MatrixTest {
     public static void main(String[] args) {
         String accessToken, roomAddress = "!mPkXwqjuGdhEVSopiG:maxwell.ydns.eu";
         try {
@@ -32,7 +33,7 @@ public class prova {
             }
             
         } catch (Exception ex) {
-            Logger.getLogger(prova.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MatrixTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
