@@ -42,6 +42,12 @@ public class TGBot extends TelegramLongPollingBot {
                 String chat_id = "" + update.getMessage().getChatId();
                 cEcho(chat_id, chat_id);
             }
+            else if (update.getMessage().getText().equalsIgnoreCase("/info") ||
+                    update.getMessage().getText().equalsIgnoreCase("/info@" + getBotUsername())) {
+                String chat_id = "" + update.getMessage().getChatId();
+                cInfo(chat_id);
+            }
+
             else {
                 //Testo e mittente
                 String testoMessaggio = update.getMessage().getText();
@@ -104,13 +110,19 @@ public class TGBot extends TelegramLongPollingBot {
         messaggio = new SendMessage()
                 .setChatId(chat_id)
                 .setText(testoMessaggio);
-        
+
         try {
             //Invia il messaggio all'utente
             sendMessage(messaggio);
         } catch (Exception e) {
             System.err.println("Errore: " + e);
         }
+    }
+
+    public void cInfo(String chat_id){
+        String stringa = "Bot utilizzato per il bridge tra Telegram e Matrix.\n" +
+                "Per informazioni: https://github.com/AhabHyde/MiguelBridge";
+        cEcho(chat_id, stringa);
     }
 
     private void echoToMatrix(String testoMessaggio, String sender, String destination) {
