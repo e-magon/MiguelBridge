@@ -1,11 +1,8 @@
 package com.em.miguelbridge.matrixbot;
 
 import com.em.miguelbridge.Launcher;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.logging.Level;
@@ -78,7 +75,7 @@ public class MatrixBot {
      * @throws java.net.URISyntaxException
      */
     public String login() throws IOException, ParseException, URISyntaxException {
-        String requestUrl = homeUrl + "/login";
+        String requestUrl = homeUrl + "client/r0/login";
         
         String[][] reqParams = new String[][] {
             {"type", "m.login.password"},
@@ -94,7 +91,7 @@ public class MatrixBot {
     }
     
     public String joinRoom(String roomAddress) throws IOException, ParseException, URISyntaxException {
-        String requestUrl = homeUrl + String.format("/rooms/%s/join?access_token=%s",
+        String requestUrl = homeUrl + String.format("client/r0/rooms/%s/join?access_token=%s",
                 roomAddress, accessToken);
         
         String[][] reqParams = null;        
@@ -104,7 +101,7 @@ public class MatrixBot {
     }
     
     public synchronized String sendMessage(String message, String roomAddress) throws IOException, URISyntaxException {
-        String requestUrl = homeUrl + String.format("/rooms/%s/send/m.room.message?access_token=%s",
+        String requestUrl = homeUrl + String.format("client/r0/rooms/%s/send/m.room.message?access_token=%s",
                 roomAddress, accessToken);
         
         String[][] reqParams = new String[][] {
@@ -116,12 +113,19 @@ public class MatrixBot {
         
         return risposta[0] + " - " + risposta[1];
     }
+
+    public synchronized String sendFile(String roomAddress, File file) throws IOException {
+        String requestUrl = homeUrl + String.format("media/r0/upload?filename=%s&access_token=%s",
+                file.getName(), accessToken);
+        String[] risposta = RequestHandler.postRequestFile(requestUrl, file);
+        return risposta[0] + " - " + risposta[1];
+    }
     
     public String[] getLastMessage(String roomAddress) {
         try {
             String filtro = URLEncoder.encode("{\"room\":{\"timeline\":{\"limit\":1}}}", "UTF-8");
             String requestUrl = homeUrl +
-                    String.format("/sync?filter=%s&access_token=%s",
+                    String.format("client/r0/sync?filter=%s&access_token=%s",
                             filtro, accessToken);
             
             String[] risposta = RequestHandler.getRequest(requestUrl);

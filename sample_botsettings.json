@@ -15,7 +15,7 @@
 	  "lastmessageid": "event id of the last message sent in this room. DO NOT EDIT"
 	}
   ],
-  "matrixhomeserver": "https://homeserver.com/_matrix/client/r0",
+  "matrixhomeserver": "https://homeserver.com/_matrix/",
   "tgtoken": "Token key given from BotFather",
   "matrixuser": "@MatrixUser:homeserver.com",
   "matrixpswd": "Matrix user password"
