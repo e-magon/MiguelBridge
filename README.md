@@ -1,5 +1,5 @@
 # MiguelBridge
-Bridge Telegram - Matrix (https://matrix.org/)
+Bridge Telegram (https://telegram.org/) - Matrix (https://matrix.org/)
 
 Using https://github.com/rubenlagus/TelegramBots and Java 1.8.0_162
 
