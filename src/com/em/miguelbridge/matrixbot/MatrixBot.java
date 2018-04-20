@@ -76,12 +76,19 @@ public class MatrixBot {
      */
     public String login() throws IOException, ParseException, URISyntaxException {
         String requestUrl = homeUrl + "client/r0/login";
-        
+
+        /*
         String[][] reqParams = new String[][] {
             {"type", "m.login.password"},
             {"user", readBotUserName()},
             {"password", readPswd()}
         };
+        */
+
+        JSONObject reqParams = new JSONObject();
+        reqParams.put("type", "m.login.password");
+        reqParams.put("user", readBotUserName());
+        reqParams.put("password", readPswd());
         
         String[] risposta = RequestHandler.postRequestJSON(requestUrl, reqParams);
         
@@ -94,7 +101,7 @@ public class MatrixBot {
         String requestUrl = homeUrl + String.format("client/r0/rooms/%s/join?access_token=%s",
                 roomAddress, accessToken);
         
-        String[][] reqParams = null;        
+        JSONObject reqParams = new JSONObject();
         String[] risposta = RequestHandler.postRequestJSON(requestUrl, reqParams);
         
         return risposta[0];
@@ -103,21 +110,55 @@ public class MatrixBot {
     public synchronized String sendMessage(String message, String roomAddress) throws IOException, URISyntaxException {
         String requestUrl = homeUrl + String.format("client/r0/rooms/%s/send/m.room.message?access_token=%s",
                 roomAddress, accessToken);
-        
+
+        /*
         String[][] reqParams = new String[][] {
             {"msgtype", "m.text"},
             {"body", message}
         };
+        */
+        JSONObject reqParams = new JSONObject();
+        reqParams.put("msgtype", "m.text");
+        reqParams.put("body", message);
         
         String[] risposta = RequestHandler.postRequestJSON(requestUrl, reqParams);
         
         return risposta[0] + " - " + risposta[1];
     }
 
-    public synchronized String sendFile(String roomAddress, File file) throws IOException {
+    public synchronized String sendFile(String roomAddress, File file) throws IOException, URISyntaxException, ParseException {
         String requestUrl = homeUrl + String.format("media/r0/upload?filename=%s&access_token=%s",
                 file.getName(), accessToken);
         String[] risposta = RequestHandler.postRequestFile(requestUrl, file);
+
+        JSONObject uriFileObj = (JSONObject) new JSONParser().parse(risposta[1]);
+        String uriFile = (String) uriFileObj.get("content_uri");
+
+        System.out.println("Il file è " + uriFile);
+        requestUrl = homeUrl + String.format("client/r0/rooms/%s/send/m.room.message?access_token=%s",
+                roomAddress, accessToken);
+
+        /*
+        String[][] reqParams = new String[][] {
+                {"msgtype", "m.image"},
+                {"body", "image.png"},
+                {"url", uriFile}
+        };
+        */
+
+        JSONObject reqParams = new JSONObject();
+        JSONObject objInfo = new JSONObject();
+
+        objInfo.put("mimetype", "image/png");
+        objInfo.put("size", file.length());
+
+        reqParams.put("info", objInfo);
+        reqParams.put("msgtype", "m.file");
+        reqParams.put("body", "image.png");
+        reqParams.put("url", uriFile);
+
+        risposta = RequestHandler.postRequestJSON(requestUrl, reqParams);
+
         return risposta[0] + " - " + risposta[1];
     }
     
