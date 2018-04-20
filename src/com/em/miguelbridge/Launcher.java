@@ -1,7 +1,7 @@
 package com.em.miguelbridge;
 
-import com.em.miguelbridge.matrixbot.MatrixBot;
-import com.em.miguelbridge.telegrambot.TGBot;
+import com.em.miguelbridge.botmatrix.MatrixBot;
+import com.em.miguelbridge.bottelegram.TGBot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;

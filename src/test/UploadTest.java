@@ -1,6 +1,6 @@
 package test;
 
-import com.em.miguelbridge.matrixbot.MatrixBot;
+import com.em.miguelbridge.botmatrix.MatrixBot;
 import org.json.simple.parser.ParseException;
 
 import java.io.File;

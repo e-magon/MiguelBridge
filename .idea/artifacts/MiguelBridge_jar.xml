@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="MiguelBridge:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/MiguelBridge_jar</output-path>
+    <root id="archive" name="MiguelBridge.jar">
+      <element id="module-output" name="MiguelBridge" />
+    </root>
+  </artifact>
+</component>

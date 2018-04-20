@@ -1,6 +1,6 @@
 package test;
 
-import com.em.miguelbridge.matrixbot.MatrixBot;
+import com.em.miguelbridge.botmatrix.MatrixBot;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
