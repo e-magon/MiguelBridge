@@ -44,7 +44,7 @@ public class UploadTest {
         MatrixBot bot = new MatrixBot();
         String token = bot.login();
         bot.setAccessToken(token);
-        File file = new File("prova.png");
+        File file = new File("prova.jpg");
         //bot.sendMessage("provaa", "!mPkXwqjuGdhEVSopiG:maxwell.ydns.eu");
 
         System.out.println(bot.sendFile("!mPkXwqjuGdhEVSopiG:maxwell.ydns.eu", file));

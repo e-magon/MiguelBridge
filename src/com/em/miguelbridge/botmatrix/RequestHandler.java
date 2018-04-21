@@ -72,7 +72,7 @@ public class RequestHandler {
     public static String[] postRequestFile(String inUrl, File file) throws IOException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(inUrl);
-        httpPost.setHeader("Content-Type", "application/file");
+        httpPost.setHeader("Content-Type", "image/jpeg");
 
         byte[] b = new byte[(int) file.length()];
         FileInputStream fileInputStream = new FileInputStream(file);

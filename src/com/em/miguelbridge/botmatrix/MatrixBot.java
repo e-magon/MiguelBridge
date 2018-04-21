@@ -2,12 +2,15 @@ package com.em.miguelbridge.botmatrix;
 
 import com.em.miguelbridge.Launcher;
 
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
 import org.json.simple.*;
 import org.json.simple.parser.*;
+
+import javax.imageio.ImageIO;
 
 /**
  * @author Emanuele Magon
@@ -139,13 +142,27 @@ public class MatrixBot {
 
         JSONObject reqParams = new JSONObject();
         JSONObject objInfo = new JSONObject();
+        JSONObject thumb = new JSONObject();
+        BufferedImage bimg = ImageIO.read(file);
+        int width = bimg.getWidth();
+        int height = bimg.getHeight();
 
-        objInfo.put("mimetype", "image/jpg");
+        thumb.put("mimetype", "image/jpeg");
+        thumb.put("h", height);
+        thumb.put("w", width);
+        thumb.put("size", file.length());
+
+        objInfo.put("mimetype", "image/jpeg");
         objInfo.put("size", file.length());
+        //objInfo.put("thumbnail_info", thumb);
+        //objInfo.put("thumbnail_url", uriFile);
+        objInfo.put("h", height);
+        objInfo.put("w", width);
+        //objInfo.put("orientation", 0);
 
         reqParams.put("info", objInfo);
-        reqParams.put("msgtype", "m.file");
-        reqParams.put("body", file.getName()+".jpg");
+        reqParams.put("msgtype", "m.image");
+        reqParams.put("body", file.getName());
         reqParams.put("url", uriFile);
 
         risposta = RequestHandler.postRequestJSON(requestUrl, reqParams);
