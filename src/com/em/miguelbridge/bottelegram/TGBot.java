@@ -70,9 +70,15 @@ public class TGBot extends TelegramLongPollingBot {
 
         else if (update.hasMessage() && update.getMessage().hasPhoto()) {
             String chat_id = "" + update.getMessage().getChatId();
-            String sender = update.getMessage().getFrom().getFirstName() + " "
-                    + update.getMessage().getFrom().getLastName();
+            String sender;
             String destination;
+
+            if (update.getMessage().getFrom().getLastName() != null)
+                sender = update.getMessage().getFrom().getFirstName() + " "
+                        + update.getMessage().getFrom().getLastName();
+            else
+                sender = update.getMessage().getFrom().getFirstName();
+
             java.io.File downloadedFile = null;
 
             //TODO Scarica la foto
