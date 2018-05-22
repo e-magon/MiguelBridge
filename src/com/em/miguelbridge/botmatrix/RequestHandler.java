@@ -47,7 +47,7 @@ public class RequestHandler {
         HttpPost post = new HttpPost(inUrl);
         
         //add header
-	    post.setHeader("User-Agent", "Mozilla/5.0");
+        post.setHeader("User-Agent", "Mozilla/5.0");
         post.addHeader("Content-Type", "charset=UTF_8");
         
         String jsonString = inObj.toJSONString();
@@ -69,10 +69,13 @@ public class RequestHandler {
         return risposta;
     }
 
-    public static String[] postRequestFile(String inUrl, File file) throws IOException {
+    public static String[] postRequestFile(String inUrl, File file, boolean isImage) throws IOException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(inUrl);
-        httpPost.setHeader("Content-Type", "image/jpeg");
+        if (isImage)
+            httpPost.setHeader("Content-Type", "image/jpeg");
+        else
+            httpPost.setHeader("Content-Type", "text/plain");
 
         byte[] b = new byte[(int) file.length()];
         FileInputStream fileInputStream = new FileInputStream(file);

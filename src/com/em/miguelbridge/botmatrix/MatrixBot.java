@@ -128,46 +128,80 @@ public class MatrixBot {
         return risposta[0] + " - " + risposta[1];
     }
 
-    public synchronized String sendFile(String roomAddress, File file) throws IOException, URISyntaxException, ParseException {
-        String requestUrl = homeUrl + String.format("media/r0/upload?filename=%s&access_token=%s",
-                file.getName()+".jpg", accessToken);
-        String[] risposta = RequestHandler.postRequestFile(requestUrl, file);
+    public synchronized String sendFile(String roomAddress, File file,
+            String nomeFile, boolean isImage) throws IOException, URISyntaxException, ParseException {
+        String requestUrl;
+        if (isImage) {
+            requestUrl = homeUrl + String.format("media/r0/upload?filename=%s&access_token=%s",
+                    file.getName()+".jpg", accessToken);
+        }
+        else {
+            requestUrl = homeUrl + String.format("media/r0/upload?filename=%s&access_token=%s",
+                    nomeFile, accessToken);
+        }
+        
+        String[] risposta = RequestHandler.postRequestFile(requestUrl, file, isImage);
 
         JSONObject uriFileObj = (JSONObject) new JSONParser().parse(risposta[1]);
         String uriFile = (String) uriFileObj.get("content_uri");
 
+        
         System.out.println("Il file è " + uriFile);
+        for (String tmp : risposta)
+            System.out.println(tmp);
+        
+        
         requestUrl = homeUrl + String.format("client/r0/rooms/%s/send/m.room.message?access_token=%s",
                 roomAddress, accessToken);
 
-        JSONObject reqParams = new JSONObject();
-        JSONObject objInfo = new JSONObject();
-        JSONObject thumb = new JSONObject();
-        BufferedImage bimg = ImageIO.read(file);
-        int width = bimg.getWidth();
-        int height = bimg.getHeight();
+        if (isImage) {
+            JSONObject reqParams = new JSONObject();
+            JSONObject objInfo = new JSONObject();
+            JSONObject thumb = new JSONObject();
+            BufferedImage bimg = ImageIO.read(file);
+            int width = bimg.getWidth();
+            int height = bimg.getHeight();
 
-        thumb.put("mimetype", "image/jpeg");
-        thumb.put("h", height);
-        thumb.put("w", width);
-        thumb.put("size", file.length());
+            thumb.put("mimetype", "image/jpeg");
+            thumb.put("h", height);
+            thumb.put("w", width);
+            thumb.put("size", file.length());
 
-        objInfo.put("mimetype", "image/jpeg");
-        objInfo.put("size", file.length());
-        //objInfo.put("thumbnail_info", thumb);
-        //objInfo.put("thumbnail_url", uriFile);
-        objInfo.put("h", height);
-        objInfo.put("w", width);
-        //objInfo.put("orientation", 0);
+            objInfo.put("mimetype", "image/jpeg");
+            objInfo.put("size", file.length());
+            //objInfo.put("thumbnail_info", thumb);
+            //objInfo.put("thumbnail_url", uriFile);
+            objInfo.put("h", height);
+            objInfo.put("w", width);
+            //objInfo.put("orientation", 0);
 
-        reqParams.put("info", objInfo);
-        reqParams.put("msgtype", "m.image");
-        reqParams.put("body", file.getName());
-        reqParams.put("url", uriFile);
+            reqParams.put("info", objInfo);
+            reqParams.put("msgtype", "m.image");
+            reqParams.put("body", file.getName());
+            reqParams.put("url", uriFile);
 
-        risposta = RequestHandler.postRequestJSON(requestUrl, reqParams);
+            risposta = RequestHandler.postRequestJSON(requestUrl, reqParams);
 
-        return risposta[0] + " - " + risposta[1];
+            return risposta[0] + " - " + risposta[1];
+        }
+        
+        else {
+            JSONObject reqParams = new JSONObject();
+            JSONObject objInfo = new JSONObject();
+            BufferedImage bimg = ImageIO.read(file);
+
+            objInfo.put("mimetype", "text/plain");   //TODO
+            objInfo.put("size", file.length());
+
+            reqParams.put("info", objInfo);
+            reqParams.put("msgtype", "m.file");
+            reqParams.put("body", nomeFile);
+            reqParams.put("url", uriFile);
+
+            risposta = RequestHandler.postRequestJSON(requestUrl, reqParams);
+
+            return risposta[0] + " - " + risposta[1];
+        }
     }
     
     public String[] getLastMessage(String roomAddress) {

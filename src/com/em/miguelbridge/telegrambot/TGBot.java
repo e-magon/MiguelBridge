@@ -1,4 +1,4 @@
-package com.em.miguelbridge.bottelegram;
+package com.em.miguelbridge.telegrambot;
 
 import com.em.miguelbridge.Launcher;
 import com.em.miguelbridge.botmatrix.MatrixBot;
@@ -14,6 +14,7 @@ import org.json.simple.parser.ParseException;
 
 import org.telegram.telegrambots.api.methods.GetFile;
 import org.telegram.telegrambots.api.methods.send.*;
+import org.telegram.telegrambots.api.objects.Document;
 import org.telegram.telegrambots.api.objects.PhotoSize;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -81,7 +82,6 @@ public class TGBot extends TelegramLongPollingBot {
 
             java.io.File downloadedFile = null;
 
-            //TODO Scarica la foto
             // When receiving a photo, you usually get different sizes of it
             List<PhotoSize> photos = update.getMessage().getPhoto();
 
@@ -92,23 +92,19 @@ public class TGBot extends TelegramLongPollingBot {
                     .orElse(null);
 
             String filePath;
-            if (foto.hasFilePath()) { // If the file_path is already present, we are done!
-                filePath = foto.getFilePath();
-            } else { // If not, let find it
-                // We create a GetFile method and set the file_id from the photo
-                GetFile getFileMethod = new GetFile();
-                getFileMethod.setFileId(foto.getFileId());
+            // We create a GetFile method and set the file_id from the photo
+            GetFile getFileMethod = new GetFile();
+            getFileMethod.setFileId(foto.getFileId());
 
-                try {
-                    // We execute the method using AbsSender::execute method.
-                    final org.telegram.telegrambots.api.objects.File file = execute(getFileMethod);
-                    // We now have the file_path
-                    filePath = file.getFilePath();
-                    // Download the file calling AbsSender::downloadFile method
-                    downloadedFile = downloadFile(filePath);
-                } catch (TelegramApiException e) {
-                    e.printStackTrace(System.err);
-                }
+            try {
+                // We execute the method using AbsSender::execute method.
+                final org.telegram.telegrambots.api.objects.File file = execute(getFileMethod);
+                // We now have the file_path
+                filePath = file.getFilePath();
+                // Download the file calling AbsSender::downloadFile method
+                downloadedFile = downloadFile(filePath);
+            } catch (TelegramApiException e) {
+                e.printStackTrace(System.err);
             }
 
 
@@ -117,7 +113,51 @@ public class TGBot extends TelegramLongPollingBot {
                 if (destination == null)
                     throw new Exception();
                 matrixBot.sendMessage(sender + " ha inviato una foto:", destination);
-                matrixBot.sendFile(destination, downloadedFile);
+                matrixBot.sendFile(destination, downloadedFile, null, true);
+            } catch (Exception ex) {
+                cEcho(chat_id, "Errore: questa chat non è collegata a matrix.");
+                ex.printStackTrace(System.err);
+            }
+        }
+        
+        else if (update.hasMessage() && update.getMessage().hasDocument()) {
+            String chat_id = "" + update.getMessage().getChatId();
+            String sender;
+            String destination;
+            String nomeFile = update.getMessage().getDocument().getFileName();
+
+            if (update.getMessage().getFrom().getLastName() != null)
+                sender = update.getMessage().getFrom().getFirstName() + " "
+                        + update.getMessage().getFrom().getLastName();
+            else
+                sender = update.getMessage().getFrom().getFirstName();
+
+            java.io.File downloadedFile = null;
+            Document documento = update.getMessage().getDocument();
+            String filePath;
+            
+            // We create a GetFile method and set the file_id from the photo
+            GetFile getFileMethod = new GetFile();
+            getFileMethod.setFileId(documento.getFileId());
+
+            try {
+                // We execute the method using AbsSender::execute method.
+                final org.telegram.telegrambots.api.objects.File file = execute(getFileMethod);
+                // We now have the file_path
+                filePath = file.getFilePath();
+                // Download the file calling AbsSender::downloadFile method
+                downloadedFile = downloadFile(filePath);
+            } catch (TelegramApiException e) {
+                e.printStackTrace(System.err);
+            }
+
+
+            try {
+                destination = getDestinationRoom(chat_id);
+                if (destination == null)
+                    throw new Exception();
+                matrixBot.sendMessage(sender + " ha inviato un file:", destination);
+                matrixBot.sendFile(destination, downloadedFile, nomeFile, false);
             } catch (Exception ex) {
                 cEcho(chat_id, "Errore: questa chat non è collegata a matrix.");
                 ex.printStackTrace(System.err);
