@@ -1,7 +1,7 @@
 # MiguelBridge
 Bridge Telegram (https://telegram.org/) - Matrix (https://matrix.org/)
 
-Using https://github.com/rubenlagus/TelegramBots, Java 1.8.0_162 and libwepb http://downloads.webmproject.org/releases/webp/index.html
+Using https://github.com/rubenlagus/TelegramBots, libwepb http://downloads.webmproject.org/releases/webp/index.html and Java 1.8.0_172.
 
 
 ## Installation
