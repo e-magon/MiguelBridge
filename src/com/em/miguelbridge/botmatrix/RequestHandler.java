@@ -69,11 +69,13 @@ public class RequestHandler {
         return risposta;
     }
 
-    public static String[] postRequestFile(String inUrl, File file, boolean isImage) throws IOException {
+    public static String[] postRequestFile(String inUrl, File file, String type) throws IOException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(inUrl);
-        if (isImage)
+        if (type.equals("jpg"))
             httpPost.setHeader("Content-Type", "image/jpeg");
+        else if (type.equals("png"))
+            httpPost.setHeader("Content-Type", "image/png");
         else
             httpPost.setHeader("Content-Type", "text/plain");
 

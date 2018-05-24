@@ -17,6 +17,7 @@ import org.telegram.telegrambots.api.methods.send.*;
 import org.telegram.telegrambots.api.objects.Document;
 import org.telegram.telegrambots.api.objects.PhotoSize;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.stickers.Sticker;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
@@ -55,9 +56,15 @@ public class TGBot extends TelegramLongPollingBot {
                 //Testo e mittente
                 String testoMessaggio = update.getMessage().getText();
                 String chat_id = "" + update.getMessage().getChatId();
-                String sender = update.getMessage().getFrom().getFirstName() + " "
-                        + update.getMessage().getFrom().getLastName();
+                String sender;
                 String destination;
+                
+                if (update.getMessage().getFrom().getLastName() != null)
+                    sender = update.getMessage().getFrom().getFirstName() + " "
+                        + update.getMessage().getFrom().getLastName();
+                else
+                    sender = update.getMessage().getFrom().getFirstName();
+                
                 try {
                     destination = getDestinationRoom(chat_id);
                     if (destination == null)
@@ -69,6 +76,7 @@ public class TGBot extends TelegramLongPollingBot {
             }
         }
 
+        //Photo
         else if (update.hasMessage() && update.getMessage().hasPhoto()) {
             String chat_id = "" + update.getMessage().getChatId();
             String sender;
@@ -113,13 +121,14 @@ public class TGBot extends TelegramLongPollingBot {
                 if (destination == null)
                     throw new Exception();
                 matrixBot.sendMessage(sender + " ha inviato una foto:", destination);
-                matrixBot.sendFile(destination, downloadedFile, null, true);
+                matrixBot.sendFile(destination, downloadedFile, null, "jpg");
             } catch (Exception ex) {
                 cEcho(chat_id, "Errore: questa chat non è collegata a matrix.");
                 ex.printStackTrace(System.err);
             }
         }
         
+        //Generic file
         else if (update.hasMessage() && update.getMessage().hasDocument()) {
             String chat_id = "" + update.getMessage().getChatId();
             String sender;
@@ -157,10 +166,68 @@ public class TGBot extends TelegramLongPollingBot {
                 if (destination == null)
                     throw new Exception();
                 matrixBot.sendMessage(sender + " ha inviato un file:", destination);
-                matrixBot.sendFile(destination, downloadedFile, nomeFile, false);
+                matrixBot.sendFile(destination, downloadedFile, nomeFile, "file");
             } catch (Exception ex) {
                 cEcho(chat_id, "Errore: questa chat non è collegata a matrix.");
                 ex.printStackTrace(System.err);
+            }
+        }
+        
+        //Sticker
+        else if (update.hasMessage()) {
+            String chat_id = "" + update.getMessage().getChatId();
+            String sender = null;
+            String destination;
+            String nomeFile = "sticker.png";
+            Sticker sticker = null;
+            File convertedImage = null;
+            
+            java.io.File downloadedFile = null;
+            
+            try {
+                if (update.getMessage().getFrom().getLastName() != null)
+                    sender = update.getMessage().getFrom().getFirstName() + " "
+                            + update.getMessage().getFrom().getLastName();
+                else
+                    sender = update.getMessage().getFrom().getFirstName();
+
+                sticker = update.getMessage().getSticker();
+                String filePath;
+
+                // We create a GetFile method and set the file_id from the photo
+                GetFile getFileMethod = new GetFile();
+                getFileMethod.setFileId(sticker.getFileId());
+                
+                // We execute the method using AbsSender::execute method.
+                final org.telegram.telegrambots.api.objects.File file = execute(getFileMethod);
+                // We now have the file_path
+                filePath = file.getFilePath();
+                // Download the file calling AbsSender::downloadFile method
+                downloadedFile = downloadFile(filePath);
+                
+                if (WebPConverter.convert(downloadedFile.getAbsolutePath(), nomeFile) == 0) {
+                    System.out.println("Done converting");
+                    convertedImage = new File(nomeFile);
+                }
+                else
+                    throw new Exception();
+                //System.out.println("Ho scaricato lo sticker");
+            }
+            catch (Exception ex) {
+                ex.printStackTrace(System.err);
+            }
+
+            try {
+                destination = getDestinationRoom(chat_id);
+                if (destination == null)
+                    throw new Exception();
+                matrixBot.sendMessage(sender + " ha inviato uno sticker " + sticker.getEmoji() + ":", destination);
+                matrixBot.sendFile(destination, convertedImage, nomeFile, "png");
+                convertedImage.delete();
+            } catch (Exception ex) {
+                cEcho(chat_id, "Errore: questa chat non è collegata a matrix.");
+                ex.printStackTrace(System.err);
+                convertedImage.delete();
             }
         }
     }
