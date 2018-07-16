@@ -145,10 +145,11 @@ public class MatrixBot {
         JSONObject uriFileObj = (JSONObject) new JSONParser().parse(risposta[1]);
         String uriFile = (String) uriFileObj.get("content_uri");
 
-        
+        /*
         System.out.println("Il file è " + uriFile);
         for (String tmp : risposta)
             System.out.println(tmp);
+        */
         
         
         requestUrl = homeUrl + String.format("client/r0/rooms/%s/send/m.room.message?access_token=%s",
