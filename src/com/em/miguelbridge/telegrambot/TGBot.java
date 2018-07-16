@@ -70,6 +70,8 @@ public class TGBot extends TelegramLongPollingBot {
                     if (destination == null)
                         throw new Exception();
                     matrixBot.sendMessage(sender + ":\n" + testoMessaggio, destination);
+                } catch (IOException | ParseException ex) {
+                ex.printStackTrace(System.err);
                 } catch (Exception ex) {
                     cEcho(chat_id, "Errore: questa chat non è collegata a matrix.");
                 }
@@ -122,9 +124,10 @@ public class TGBot extends TelegramLongPollingBot {
                     throw new Exception();
                 matrixBot.sendMessage(sender + " ha inviato una foto:", destination);
                 matrixBot.sendFile(destination, downloadedFile, null, "jpg");
+            } catch (IOException | ParseException ex) {
+                ex.printStackTrace(System.err);
             } catch (Exception ex) {
                 cEcho(chat_id, "Errore: questa chat non è collegata a matrix.");
-                ex.printStackTrace(System.err);
             }
         }
         
@@ -167,12 +170,14 @@ public class TGBot extends TelegramLongPollingBot {
                     throw new Exception();
                 matrixBot.sendMessage(sender + " ha inviato un file:", destination);
                 matrixBot.sendFile(destination, downloadedFile, nomeFile, "file");
+            } catch (IOException | ParseException ex) {
+                ex.printStackTrace(System.err);
             } catch (Exception ex) {
                 cEcho(chat_id, "Errore: questa chat non è collegata a matrix.");
-                ex.printStackTrace(System.err);
             }
         }
         
+        /*
         //Sticker
         else if (update.hasMessage()) {
             String chat_id = "" + update.getMessage().getChatId();
@@ -205,7 +210,7 @@ public class TGBot extends TelegramLongPollingBot {
                 // Download the file calling AbsSender::downloadFile method
                 downloadedFile = downloadFile(filePath);
                 
-                if (WebPConverter.convert(downloadedFile.getAbsolutePath(), nomeFile) == 0) {
+                if (WebPConverter.convert(downloadedFile.getAbsolutePath(), "./" + nomeFile, false) == 0) {
                     System.out.println("Done converting");
                     convertedImage = new File(nomeFile);
                 }
@@ -223,13 +228,15 @@ public class TGBot extends TelegramLongPollingBot {
                     throw new Exception();
                 matrixBot.sendMessage(sender + " ha inviato uno sticker " + sticker.getEmoji() + ":", destination);
                 matrixBot.sendFile(destination, convertedImage, nomeFile, "png");
-                convertedImage.delete();
+                //convertedImage.delete();
+            } catch (IOException | ParseException ex) {
+                ex.printStackTrace(System.err);
             } catch (Exception ex) {
                 cEcho(chat_id, "Errore: questa chat non è collegata a matrix.");
-                ex.printStackTrace(System.err);
-                convertedImage.delete();
+                //convertedImage.delete();
             }
         }
+        */
     }
 
     @Override

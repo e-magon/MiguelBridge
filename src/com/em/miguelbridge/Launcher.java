@@ -26,6 +26,7 @@ import org.telegram.telegrambots.TelegramBotsApi;
  */
 public class Launcher {
     public final static String fileSettings = "files/botsettings.json";
+    private final static int sleepTime = 750;
     
     public static void main(String[] args) {        
         // Inizializza il context delle API Telegram (richiesto)
@@ -64,7 +65,7 @@ public class Launcher {
             
             while (true) {
                 //Main loop del bot di matrix
-                Thread.sleep(500);
+                Thread.sleep(sleepTime);
                 rooms = getRooms();
                 for (int roomNumber=0; roomNumber<rooms.size(); roomNumber++) {
                     JSONObject room = (JSONObject) rooms.get(roomNumber);
