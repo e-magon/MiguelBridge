@@ -240,7 +240,7 @@ public class MatrixBot {
         try {
             String filtro = URLEncoder.encode("{\"room\":{\"timeline\":{\"limit\":1}}}", "UTF-8");
             String requestUrl = homeUrl +
-                    String.format("client/r0/sync?filter=%s&access_token=%s",
+                    String.format("client/r0/sync?filter=%s&timeout=5000&access_token=%s",
                             filtro, accessToken);
             
             String[] risposta = RequestHandler.getRequest(requestUrl);
