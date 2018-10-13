@@ -65,7 +65,7 @@ public class Launcher {
             
             while (true) {
                 //Main loop del bot di matrix
-                //Thread.sleep(sleepTime);
+                Thread.sleep(sleepTime);
                 rooms = getRooms();
                 for (int roomNumber=0; roomNumber<rooms.size(); roomNumber++) {
                     JSONObject room = (JSONObject) rooms.get(roomNumber);

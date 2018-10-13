@@ -1,4 +1,4 @@
-\package test;
+package test;
 
 import com.em.miguelbridge.botmatrix.MatrixBot;
 import org.json.simple.parser.ParseException;
@@ -47,6 +47,6 @@ public class UploadTest {
         File file = new File("prova.jpg");
         //bot.sendMessage("provaa", "!mPkXwqjuGdhEVSopiG:maxwell.ydns.eu");
 
-        //System.out.println(bot.sendFile("!mPkXwqjuGdhEVSopiG:maxwell.ydns.eu", file, null, true));
+        System.out.println(bot.sendFile("!mPkXwqjuGdhEVSopiG:maxwell.ydns.eu", file, null, true));
     }
 }
