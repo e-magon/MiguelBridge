@@ -18,19 +18,20 @@ import javax.imageio.ImageIO;
 public class MatrixBot {
     //https://matrix.org/docs/guides/client-server.html
     private final String homeUrl;
-    
     private String accessToken;
-
+    private final int timeoutMs;
+    
+    public MatrixBot() throws IOException, FileNotFoundException, ParseException {
+        homeUrl = getHomeServer();
+        timeoutMs = 30 * 1000;  //30 seconds
+    }
+    
     public String getAccessToken() {
         return accessToken;
     }
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
-    }
-    
-    public MatrixBot() throws IOException, FileNotFoundException, ParseException {
-        homeUrl = getHomeServer();
     }
     
     public static String readBotUserName() throws FileNotFoundException, IOException, ParseException {
@@ -240,7 +241,7 @@ public class MatrixBot {
         try {
             String filtro = URLEncoder.encode("{\"room\":{\"timeline\":{\"limit\":1}}}", "UTF-8");
             String requestUrl = homeUrl +
-                    String.format("client/r0/sync?filter=%s&access_token=%s",
+                    String.format("client/r0/sync?filter=%s&timeout=" + timeoutMs + "&access_token=%s",
                             filtro, accessToken);
             
             String[] risposta = RequestHandler.getRequest(requestUrl);
